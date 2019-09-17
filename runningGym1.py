@@ -1,12 +1,11 @@
 import bsuite
 
 from bsuite import sweep
+import gym
 
-# Instantiate the environment corresponding to a given `bsuite_id`
-env = bsuite.load_from_id("bandit_noise/0")
+from bsuite.utils import gym_wrapper
+raw_env = bsuite.load_from_id(bsuite_id='memory_len/0')
+env = gym_wrapper.GymWrapper(raw_env)
+isinstance(env, gym.Env)
 
-# Default configuration is dm_env
-import dm_env
-env = bsuite.load_from_id(bsuite_id='bandit_noise/0')
-isinstance(env, dm_env.Environment)
 
