@@ -1,20 +1,19 @@
+#
+# Agent: Random
+# Experiment: bandit_noise - all sweeps
+#
 import bsuite
 import numpy as np
-from ggplot import *
 
 from bsuite import sweep
 
-# Default configuration is dm_env
-#import dm_env
-#env = bsuite.load_from_id(bsuite_id='bandit_noise/0')
-#isinstance(env, dm_env.Environment)
+SAVE_PATH_RAND = './bs01/rand'
 
-SAVE_PATH_RAND = './results'
-
-# To run the whole experiment, simply repeat for all bsuite_id
+# evaluate a random agent experiment on a single bsuite_id
 def run_random_agent(bsuite_id, save_path=SAVE_PATH_RAND, overwrite=True):
-    """Evaluates a random agent experiment on a single bsuite_id."""
     env = bsuite.load_and_record(bsuite_id, save_path, overwrite=overwrite)
+    print('bsuite_id={}, settings={}, num_episodes={}'.format(bsuite_id, sweep.SETTINGS[bsuite_id],
+                                                              env.bsuite_num_episodes))
     for episode in range(env.bsuite_num_episodes):
         timestep = env.reset()
         while not timestep.last():
@@ -22,9 +21,8 @@ def run_random_agent(bsuite_id, save_path=SAVE_PATH_RAND, overwrite=True):
             timestep = env.step(action)
     return
 
-# for bsuite_id in sweep.BANDIT_NOISE:
-#     run_random_agent(bsuite_id)
-run_random_agent('bandit_noise/0')
+for bsuite_id in sweep.BANDIT_NOISE:
+    run_random_agent(bsuite_id)
 
 # We have logged results as CSV files in SAVE_PATH
 print("Loading results...")

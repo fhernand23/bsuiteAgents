@@ -1,3 +1,8 @@
+#
+# Agent: Random - DQN
+# Experiment: bandit_noise - all sweeps
+# Fail to run in windows env
+#
 import bsuite
 import numpy as np
 from bsuite.baselines.dqn import dqn
