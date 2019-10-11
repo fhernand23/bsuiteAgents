@@ -7,7 +7,7 @@ import numpy as np
 
 from bsuite import sweep
 
-SAVE_PATH_RAND = './bs03/rand'
+SAVE_PATH_RAND = './bsall/rand'
 
 # evaluate a random agent experiment on a single bsuite_id
 def run_random_agent(bsuite_id, save_path=SAVE_PATH_RAND, overwrite=True):
