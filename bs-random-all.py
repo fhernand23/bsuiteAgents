@@ -3,23 +3,22 @@
 # Experiment: All
 #
 import bsuite
-import numpy as np
-
+from bsuite.baselines.random import random
+from bsuite.baselines import experiment
 from bsuite import sweep
 
-SAVE_PATH_RAND = './bsall/rand'
+SAVE_PATH_RAND = './bs/rand'
 
 # evaluate a random agent experiment on a single bsuite_id
 def run_random_agent(bsuite_id, save_path=SAVE_PATH_RAND, overwrite=True):
     env = bsuite.load_and_record(bsuite_id, save_path, overwrite=overwrite)
     print('bsuite_id={}, settings={}, num_episodes={}'.format(bsuite_id, sweep.SETTINGS[bsuite_id],
                                                               env.bsuite_num_episodes))
-    for episode in range(env.bsuite_num_episodes):
-        timestep = env.reset()
-        while not timestep.last():
-            action = np.random.choice(env.action_spec().num_values)
-            timestep = env.step(action)
-    return
+    agent = random.default_agent(
+        obs_spec=env.observation_spec(),
+        action_spec=env.action_spec()
+    )
+    experiment.run(agent, env, num_episodes=env.bsuite_num_episodes)
 
 
 # Basic
