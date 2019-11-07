@@ -36,6 +36,9 @@ class QLearning(base.Agent):
         self._gamma = gamma
         self._rng = np.random.RandomState(seed)
         # initialising Q-table
+        print("num_actions: " + str(self._num_actions))
+        print("obs shape: " + str(obs_spec.shape))
+        print("Q np.zeros: " + str(self._num_actions + (obs_spec.shape,)))
         self._Q = np.zeros(self._num_actions + (obs_spec.shape,))
 
     # Adaptive learning of Exploration Rate
@@ -47,24 +50,23 @@ class QLearning(base.Agent):
         return max(self.min_alpha, min(1.0, 1.0 - math.log10((episode + 1) / 25)))
 
     def policy(self, timestep: dm_env.TimeStep) -> base.Action:
-        """Select actions according to epsilon-greedy policy."""
         # Epsilon-greedy policy.
         # https: // github.com / deepmind / dm_env / blob / master / docs / index.md
         if self._rng.rand() < self._epsilon:
             return np.random.randint(self._num_actions)
-        q_values = self._forward(timestep.observation[None, ...])
+        q_values = self._Q(timestep.observation[None, ...])
         return int(np.argmax(q_values))
 
-    def update(self,
-               timestep: dm_env.TimeStep,
-               action: base.Action,
-               new_timestep: dm_env.TimeStep) -> None:
+    def update(
+            self,
+            timestep: dm_env.TimeStep,
+            action: base.Action,
+            new_timestep: dm_env.TimeStep,):
 
         self._Q[state_old][action] += alpha * (
                     reward + self.gamma * np.max(self.Q[state_new]) - self.Q[state_old][action])
 
-    def default_agent(obs_spec: specs.Array,
-                      action_spec: specs.DiscreteArray):
+    def default_agent(obs_spec: specs.Array, action_spec: specs.DiscreteArray):
         """Initialize a QLearning agent with default parameters."""
         return QLearning(action_spec=action_spec,
                          obs_spec=obs_spec,
@@ -74,7 +76,7 @@ class QLearning(base.Agent):
                          seed=42)
 
 
-# evaluate a random agent experiment on a single bsuite_id
+# evaluate the agent experiment on a single bsuite_id
 def run_agent(bsuite_id, save_path=SAVE_PATH_RAND, overwrite=True):
     # Load environment
     env = bsuite.load_and_record(bsuite_id, save_path, overwrite=overwrite)
