@@ -38,6 +38,9 @@ class QLearning(base.Agent):
         # initialising Q-table
         print("num_actions: " + str(self._num_actions))
         print("obs shape: " + str(obs_spec.shape))
+        print("obs num values: " + str(obs_spec.num_values))
+        print("2: " + str(self._num_actions + (obs_spec.shape,)))
+        print("1: " + str((obs_spec.shape,) + self._num_actions))
         self._Q = np.zeros((obs_spec.shape,) + self._num_actions)
         print("Q: " + str(self._Q))
         print("Q shape: " + str(self._Q.shape))
