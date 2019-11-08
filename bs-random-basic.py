@@ -43,6 +43,7 @@ class RandomAgent(base.Agent):
         print("Update timestep: " + str(timestep)) # TimeStep(step_type=<StepType.FIRST: 0>, reward=None, discount=None, observation=array([[1.]], dtype=float32))
         print("Update action: " + str(action)) # 7
         print("Update new_timestep: " + str(new_timestep)) # TimeStep(step_type=<StepType.LAST: 2>, reward=0.8, discount=0.0, observation=array([[1.]], dtype=float32))
+        print("Update timestep.observation: " + str(timestep.observation[None, ...]))
         del timestep
         del action
         del new_timestep

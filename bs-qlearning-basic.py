@@ -38,16 +38,9 @@ class QLearning(base.Agent):
         # initialising Q-table
         print("num_actions: " + str(self._num_actions))
         print("obs shape: " + str(obs_spec.shape))
-        print("Q np.zeros: " + str(self._num_actions + (obs_spec.shape,)))
-        self._Q = np.zeros(self._num_actions + (obs_spec.shape,))
-
-    # Adaptive learning of Exploration Rate
-    def get_epsilon(self, episode):
-        return max(self.min_epsilon, min(1, 1.0 - math.log10((episode + 1) / 25)))
-
-    # Adaptive learning of Learning Rate
-    def get_alpha(self, episode):
-        return max(self.min_alpha, min(1.0, 1.0 - math.log10((episode + 1) / 25)))
+        self._Q = np.zeros((obs_spec.shape,) + self._num_actions)
+        print("Q: " + str(self._Q))
+        print("Q shape: " + str(self._Q.shape))
 
     def policy(self, timestep: dm_env.TimeStep) -> base.Action:
         # Epsilon-greedy policy.
@@ -63,8 +56,8 @@ class QLearning(base.Agent):
             action: base.Action,
             new_timestep: dm_env.TimeStep,):
 
-        self._Q[state_old][action] += alpha * (
-                    reward + self.gamma * np.max(self.Q[state_new]) - self.Q[state_old][action])
+        self._Q[timestep.observation[None, ...]][action] += self._min_alpha * (
+                    timestep.reward + self.gamma * np.max(self._Q[new_timestep.observation[None, ...]]) - self.Q[timestep.observation[None, ...]][action])
 
     def default_agent(obs_spec: specs.Array, action_spec: specs.DiscreteArray):
         """Initialize a QLearning agent with default parameters."""
