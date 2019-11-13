@@ -36,20 +36,18 @@ class QLearning(base.Agent):
         self._gamma = gamma
         self._rng = np.random.RandomState(seed)
         # initialising Q-table
-        print("num_actions: " + str(self._num_actions))
-        print("obs shape: " + str(obs_spec.shape))
-        print("obs num values: " + str(obs_spec.num_values))
-        print("2: " + str(self._num_actions + (obs_spec.shape,)))
-        print("1: " + str((obs_spec.shape,) + self._num_actions))
-        self._Q = np.zeros((obs_spec.shape,) + self._num_actions)
-        print("Q: " + str(self._Q))
-        print("Q shape: " + str(self._Q.shape))
+        print("1: " + str(obs_spec.shape))
+        print("2: " + str((self._num_actions,)))
+        print("3: " + str(obs_spec.shape + (self._num_actions,)))
+        print("4: " + str(np.zeros(obs_spec.shape + (self._num_actions,))))
+        self._Q = np.zeros(obs_spec.shape + (self._num_actions,))
 
     def policy(self, timestep: dm_env.TimeStep) -> base.Action:
         # Epsilon-greedy policy.
         # https: // github.com / deepmind / dm_env / blob / master / docs / index.md
-        if self._rng.rand() < self._epsilon:
+        if self._rng.rand() < self._min_epsilon:
             return np.random.randint(self._num_actions)
+        print("5: " + str(timestep.observation[None, ...]))
         q_values = self._Q(timestep.observation[None, ...])
         return int(np.argmax(q_values))
 
