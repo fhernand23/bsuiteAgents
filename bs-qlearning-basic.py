@@ -39,7 +39,7 @@ class QLearning(base.Agent):
         print("1: " + str(obs_spec.shape))
         print("2: " + str((self._num_actions,)))
         print("3: " + str(obs_spec.shape + (self._num_actions,)))
-        print("4: " + str(np.zeros(obs_spec.shape + (self._num_actions,))))
+        # print("4: " + str(np.zeros(obs_spec.shape + (self._num_actions,))))
         self._Q = np.zeros(obs_spec.shape + (self._num_actions,))
 
     def policy(self, timestep: dm_env.TimeStep) -> base.Action:
@@ -47,7 +47,9 @@ class QLearning(base.Agent):
         # https: // github.com / deepmind / dm_env / blob / master / docs / index.md
         if self._rng.rand() < self._min_epsilon:
             return np.random.randint(self._num_actions)
-        print("5: " + str(timestep.observation[None, ...]))
+        print("5: " + str(timestep))
+        print("5b: " + str(timestep.observation))
+        print("5c: " + str(timestep.observation[None, ...]))
         q_values = self._Q(timestep.observation[None, ...])
         return int(np.argmax(q_values))
 
@@ -84,6 +86,13 @@ def run_agent(bsuite_id, save_path=SAVE_PATH_RAND, overwrite=True):
 
 
 # run the agents for all BANDIT sweeps
-for bsuite_id in sweep.BANDIT:
-    run_agent(bsuite_id)
+# for bsuite_id in sweep.BANDIT:
+#     run_agent(bsuite_id)
 
+# run the agents for all MNIST sweeps
+# for bsuite_id in sweep.MNIST:
+#     run_agent(bsuite_id)
+
+# run the agents for all CATCH sweeps
+for bsuite_id in sweep.CATCH:
+    run_agent(bsuite_id)
