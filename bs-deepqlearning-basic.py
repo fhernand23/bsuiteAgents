@@ -18,10 +18,13 @@ import dm_env
 from dm_env import specs
 import numpy as np
 import tensorflow as tf
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.optimizers import Adam
+from tensorflow import keras
+# from tensorflow.keras.models import Sequential
+# from tensorflow.keras.layers import Dense
+# from tensorflow.keras.optimizers import Adam
 from bsuite.baselines.utils import replay
+import tensorflow.keras.models
+import random
 
 SAVE_PATH_RAND = './bs01/ql'
 
@@ -39,6 +42,7 @@ class DeepQLearning(base.Agent):
                 epsilon_min,
                 epsilon_decay,
                 learning_rate,
+                batch_size,
                 seed: int = None,):
         # configuration and hyperparameters.
         self._num_actions = action_spec.num_values
@@ -47,6 +51,7 @@ class DeepQLearning(base.Agent):
         self._epsilon_min = epsilon_min
         self._epsilon_decay = epsilon_decay
         self._learning_rate = learning_rate
+        self._batch_size = batch_size
 
         self._total_steps = 0
         self._memory = replay.Replay(capacity=max_memory_length)
@@ -62,7 +67,7 @@ class DeepQLearning(base.Agent):
         # print("space tuple: " + str(tuple(timestep.observation[None, ...])))
         # print("observation: " + str(timestep.observation[None, ...]))
         # print("observation type: " + str(type(timestep.observation[None, ...])))
-        act_values = self.model.predict(timestep.observation[None, ...])
+        act_values = self._model.predict(timestep.observation[None, ...])
         return int(np.argmax(act_values[0]))
 
     def update(self, timestep: dm_env.TimeStep, action: base.Action, new_timestep: dm_env.TimeStep,):
@@ -70,32 +75,33 @@ class DeepQLearning(base.Agent):
         self._replay.add([timestep.observation, action, new_timestep.reward, new_timestep.discount, new_timestep.observation,])
 
         self._total_steps += 1
-        # continuar
 
-    # def remember(self, state, action, reward, next_state, done):
-    #     self._memory.append((state, action, reward, next_state, done))
+        if self._replay.size < self._batch_size:
+            return
+
+        replay(self._batch_size)
 
     def replay(self, batch_size):
-        minibatch = random.sample(self.memory, batch_size)
+        minibatch = random.sample(self._replay, batch_size)
+        # TODO cambiar estos valores por los correctos
         for state, action, reward, next_state, done in minibatch:
             target = reward
             if not done:
-                target = reward + self.gamma * \
-                         np.amax(self.model.predict(next_state)[0])
-            target_f = self.model.predict(state)
+                target = (reward + self._gamma * np.amax(self._model.predict(next_state)[0]))
+            target_f = self._model.predict(state)
             target_f[0][action] = target
-            self.model.fit(state, target_f, epochs=1, verbose=0)
-        if self.epsilon > self.epsilon_min:
-            self.epsilon *= self.epsilon_decay
+            self._model.fit(state, target_f, epochs=1, verbose=0)
+        if self._epsilon > self._epsilon_min:
+            self._epsilon *= self._epsilon_decay
 
     def default_agent(obs_spec: specs.Array, action_spec: specs.DiscreteArray, learning_rate = 0.001):
         """Initialize a DeepQLearning agent with default hyper parameters."""
         # create the model Neural Net for Deep-Q learning Model
-        model = Sequential()
-        model.add(Dense(24, input_dim=obs_spec.shape, activation='relu'))
-        model.add(Dense(24, activation='relu'))
-        model.add(Dense(action_spec.num_values, activation='linear'))
-        model.compile(loss='mse', optimizer=Adam(lr=learning_rate))
+        model = keras.Sequential()
+        model.add(keras.layers.Dense(24, input_dim=obs_spec.shape, activation='relu'))
+        model.add(keras.layers.Dense(24, activation='relu'))
+        model.add(keras.layers.Dense(action_spec.num_values, activation='linear'))
+        model.compile(loss='mse', optimizer=keras.optimizer.Adam(lr=learning_rate))
 
         return DeepQLearning(action_spec=action_spec,
                             obs_spec=obs_spec,
@@ -106,6 +112,7 @@ class DeepQLearning(base.Agent):
                             epsilon_min = 0.01,
                             epsilon_decay = 0.995,
                             learning_rate = learning_rate,
+                            batch_size = 32,
                             seed=42)
 
 

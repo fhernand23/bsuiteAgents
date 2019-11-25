@@ -159,3 +159,10 @@ def run_agent(bsuite_id, save_path=SAVE_PATH_RAND, overwrite=True):
 for bsuite_id in sweep.BANDIT:
     run_agent(bsuite_id)
 
+# run the agents for all MNIST sweeps
+for bsuite_id in sweep.MNIST:
+    run_agent(bsuite_id)
+
+# run the agents for all CATCH sweeps
+for bsuite_id in sweep.CATCH:
+    run_agent(bsuite_id)

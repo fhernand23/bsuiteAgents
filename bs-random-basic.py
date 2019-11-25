@@ -25,29 +25,29 @@ class RandomAgent(base.Agent):
         self._obs_spec_shape = obs_spec.shape # (1, 1)
         self._num_actions = action_spec.num_values # 11
         self._rng = np.random.RandomState(seed)
-        print("init num_actions: " + str(self._num_actions))
-        print("init obs shape: " + str(obs_spec.shape))
+        # print("init num_actions: " + str(self._num_actions))
+        # print("init obs shape: " + str(obs_spec.shape))
 
     def policy(self, timestep: dm_env.TimeStep) -> base.Action:
-        print("Policy --------")
-        print("Policy timestep: " + str(timestep)) # TimeStep(step_type=<StepType.FIRST: 0>, reward=None, discount=None, observation=array([[1.]], dtype=float32))
+        # print("Policy --------")
+        # print("Policy timestep: " + str(timestep)) # TimeStep(step_type=<StepType.FIRST: 0>, reward=None, discount=None, observation=array([[1.]], dtype=float32))
         del timestep
         return self._rng.randint(self._num_actions)
-        print("Policy --------")
+        # print("Policy --------")
 
     def update(self,
                timestep: dm_env.TimeStep,
                action: base.Action,
                new_timestep: dm_env.TimeStep) -> None:
-        print("Update --------")
-        print("Update timestep: " + str(timestep)) # TimeStep(step_type=<StepType.FIRST: 0>, reward=None, discount=None, observation=array([[1.]], dtype=float32))
-        print("Update action: " + str(action)) # 7
-        print("Update new_timestep: " + str(new_timestep)) # TimeStep(step_type=<StepType.LAST: 2>, reward=0.8, discount=0.0, observation=array([[1.]], dtype=float32))
-        print("Update timestep.observation: " + str(timestep.observation[None, ...]))
+        # print("Update --------")
+        # print("Update timestep: " + str(timestep)) # TimeStep(step_type=<StepType.FIRST: 0>, reward=None, discount=None, observation=array([[1.]], dtype=float32))
+        # print("Update action: " + str(action)) # 7
+        # print("Update new_timestep: " + str(new_timestep)) # TimeStep(step_type=<StepType.LAST: 2>, reward=0.8, discount=0.0, observation=array([[1.]], dtype=float32))
+        # print("Update timestep.observation: " + str(timestep.observation[None, ...]))
         del timestep
         del action
         del new_timestep
-        print("Policy --------")
+        # print("Policy --------")
 
     def default_agent(obs_spec: specs.Array, action_spec: specs.DiscreteArray):
         """Initialize a QLearning agent with default parameters."""
@@ -70,6 +70,15 @@ def run_agent(bsuite_id, save_path=SAVE_PATH_RAND, overwrite=True):
 
 
 # run the agents for all BANDIT sweeps
-for bsuite_id in sweep.BANDIT:
+# for bsuite_id in sweep.BANDIT:
+#     run_agent(bsuite_id)
+
+# run the agents for all MNIST sweeps
+for bsuite_id in sweep.MNIST:
     run_agent(bsuite_id)
+
+# run the agents for all CATCH sweeps
+for bsuite_id in sweep.CATCH:
+    run_agent(bsuite_id)
+
 
