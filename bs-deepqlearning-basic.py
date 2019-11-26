@@ -27,7 +27,7 @@ import tensorflow.keras.models
 import random
 from collections import deque
 
-SAVE_PATH_RAND = './bs01/ql'
+SAVE_PATH_RAND = './bs01/dql'
 
 
 class DeepQLearning(base.Agent):
@@ -63,6 +63,7 @@ class DeepQLearning(base.Agent):
 
     def policy(self, timestep: dm_env.TimeStep) -> base.Action:
         # Epsilon-greedy policy.
+        print("policy: " + str(self._total_steps))
         if self._rng.rand() < self._epsilon:
             return np.random.randint(self._num_actions)
         # print("space tuple: " + str(tuple(timestep.observation[None, ...])))
@@ -78,6 +79,8 @@ class DeepQLearning(base.Agent):
 
         self._total_steps += 1
 
+        print("update: " + str(self._total_steps))
+        print("last?: " + str(new_timestep.last()))
         # if done:
         #     print("episode: {}/{}, score: {}, e: {:.2}"
         #           .format(e, EPISODES, time, agent.epsilon))
@@ -95,10 +98,15 @@ class DeepQLearning(base.Agent):
         # print("minibatch: " + str(minibatch))
         # TODO cambiar estos valores por los correctos
         for state, action, reward, discount, next_state, done in minibatch:
+            print("state: " + str(state))
+            print("action: " + str(action))
+            print("reward: " + str(reward))
+            print("discount: " + str(discount))
+            print("next_state: " + str(next_state))
+            print("done: " + str(done))
             target = reward
             if not done:
                 target = (reward + self._gamma * np.amax(self._model.predict(next_state)[0]))
-            print("predict: " + str(state))
             target_f = self._model.predict(state)
             target_f[0][action] = target
             self._model.fit(state, target_f, epochs=1, verbose=0)
@@ -111,13 +119,14 @@ class DeepQLearning(base.Agent):
         model = keras.Sequential()
         #model.add(keras.layers.Dense(24, input_dim=obs_spec.shape, activation='relu'))
         print("input shape: " + str(obs_spec.shape))
-        model.add(keras.layers.Dense(24, input_shape=obs_spec.shape, activation='relu'))
+        model.add(keras.layers.Flatten(input_shape=obs_spec.shape))
+        model.add(keras.layers.Dense(24, activation='relu'))
         model.add(keras.layers.Dense(24, activation='relu'))
         model.add(keras.layers.Dense(action_spec.num_values, activation='linear'))
         model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=learning_rate))
 
-        return DeepQLearning(action_spec=action_spec,
-                            obs_spec=obs_spec,
+        return DeepQLearning(obs_spec=obs_spec,
+                            action_spec=action_spec,
                             model = model,
                             max_memory_length=2000,
                             gamma = 0.95,  # discount rate
