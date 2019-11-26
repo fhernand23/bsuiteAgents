@@ -117,11 +117,12 @@ class DeepQLearning(base.Agent):
         """Initialize a DeepQLearning agent with default hyper parameters."""
         # create the model Neural Net for Deep-Q learning Model
         model = keras.Sequential()
-        #model.add(keras.layers.Dense(24, input_dim=obs_spec.shape, activation='relu'))
+        model.add(keras.layers.Dense(24, input_dim=obs_spec.shape, activation='relu'))
         print("input shape: " + str(obs_spec.shape))
-        model.add(keras.layers.Flatten(input_shape=obs_spec.shape))
+        #model.add(keras.layers.Flatten(input_shape=obs_spec.shape))
+        #model.add(keras.layers.Dense(24, activation='relu'))
         model.add(keras.layers.Dense(24, activation='relu'))
-        model.add(keras.layers.Dense(24, activation='relu'))
+        model.add(keras.layers.Flatten())
         model.add(keras.layers.Dense(action_spec.num_values, activation='linear'))
         model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=learning_rate))
 
