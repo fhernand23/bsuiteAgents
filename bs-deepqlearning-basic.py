@@ -60,6 +60,7 @@ class DeepQLearning(base.Agent):
 
     def policy(self, timestep: dm_env.TimeStep) -> base.Action:
         # Epsilon-greedy policy.
+        print("policy: " + str(self._total_steps))
         if self._rng.rand() < self._epsilon:
             return np.random.randint(self._num_actions)
 
@@ -69,6 +70,7 @@ class DeepQLearning(base.Agent):
 
     def update(self, timestep: dm_env.TimeStep, action: base.Action, new_timestep: dm_env.TimeStep,):
         # Add this transition to replay.
+        print("update: " + str(self._total_steps))
         #self._memory.add([timestep.observation, action, new_timestep.reward, new_timestep.discount, new_timestep.observation, new_timestep.last()])
         self._memory.append((timestep.observation, action, new_timestep.reward, new_timestep.discount, new_timestep.observation, new_timestep.last()))
 
@@ -81,6 +83,7 @@ class DeepQLearning(base.Agent):
     def replay(self, batch_size):
         # run a random sample of past actions
         # minibatch = self._memory.sample(batch_size)
+        print("replay: " + str(self._total_steps))
         minibatch = random.sample(self._memory, batch_size)
         for state, action, reward, discount, next_state, done in minibatch:
             target = reward
