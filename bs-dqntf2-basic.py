@@ -12,9 +12,10 @@ from dm_env import specs
 import numpy as np
 import sonnet as snt
 import tensorflow.compat.v2 as tf
+from datetime import datetime
 
 
-SAVE_PATH_RAND = './bs01/dqntf2'
+SAVE_PATH_RAND = './bs/dqntf2'
 
 
 class DQNTF2(base.Agent):
@@ -146,8 +147,8 @@ class DQNTF2(base.Agent):
 def run_agent(bsuite_id, save_path=SAVE_PATH_RAND, overwrite=True):
     # Load environment
     env = bsuite.load_and_record(bsuite_id, save_path, overwrite=overwrite)
-    print('bsuite_id={}, settings={}, num_episodes={}'.format(bsuite_id, sweep.SETTINGS[bsuite_id],
-                                                              env.bsuite_num_episodes))
+    print('bsuite_id={}, settings={}, num_episodes={}, start={}'.format(
+        bsuite_id, sweep.SETTINGS[bsuite_id], env.bsuite_num_episodes, datetime.now().strftime("%H:%M:%S")))
     agent = DQNTF2.default_agent(
         obs_spec=env.observation_spec(),
         action_spec=env.action_spec()

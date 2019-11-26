@@ -19,15 +19,12 @@ from dm_env import specs
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
-# from tensorflow.keras.models import Sequential
-# from tensorflow.keras.layers import Dense
-# from tensorflow.keras.optimizers import Adam
-from bsuite.baselines.utils import replay
-import tensorflow.keras.models
 import random
 from collections import deque
+from datetime import datetime
 
-SAVE_PATH_RAND = './bs01/dql'
+
+SAVE_PATH_RAND = './bs/sdql'
 
 
 class DeepQLearning(base.Agent):
@@ -63,13 +60,11 @@ class DeepQLearning(base.Agent):
 
     def policy(self, timestep: dm_env.TimeStep) -> base.Action:
         # Epsilon-greedy policy.
-        print("policy: " + str(self._total_steps))
         if self._rng.rand() < self._epsilon:
             return np.random.randint(self._num_actions)
-        # print("space tuple: " + str(tuple(timestep.observation[None, ...])))
-        # print("observation: " + str(timestep.observation[None, ...]))
-        # print("observation type: " + str(type(timestep.observation[None, ...])))
-        act_values = self._model.predict(timestep.observation[None, ...])
+
+        # act_values = self._model.predict(timestep.observation[None, ...])
+        act_values = self._model.predict(timestep.observation)
         return int(np.argmax(act_values[0]))
 
     def update(self, timestep: dm_env.TimeStep, action: base.Action, new_timestep: dm_env.TimeStep,):
@@ -79,13 +74,6 @@ class DeepQLearning(base.Agent):
 
         self._total_steps += 1
 
-        print("update: " + str(self._total_steps))
-        print("last?: " + str(new_timestep.last()))
-        # if done:
-        #     print("episode: {}/{}, score: {}, e: {:.2}"
-        #           .format(e, EPISODES, time, agent.epsilon))
-        #     break
-
         # if self._memory.size > self._batch_size:
         if len(self._memory) > self._batch_size:
             self.replay(self._batch_size)
@@ -94,16 +82,7 @@ class DeepQLearning(base.Agent):
         # run a random sample of past actions
         # minibatch = self._memory.sample(batch_size)
         minibatch = random.sample(self._memory, batch_size)
-        # print("minibatch type: " + str(type(minibatch)))
-        # print("minibatch: " + str(minibatch))
-        # TODO cambiar estos valores por los correctos
         for state, action, reward, discount, next_state, done in minibatch:
-            print("state: " + str(state))
-            print("action: " + str(action))
-            print("reward: " + str(reward))
-            print("discount: " + str(discount))
-            print("next_state: " + str(next_state))
-            print("done: " + str(done))
             target = reward
             if not done:
                 target = (reward + self._gamma * np.amax(self._model.predict(next_state)[0]))
@@ -118,11 +97,9 @@ class DeepQLearning(base.Agent):
         # create the model Neural Net for Deep-Q learning Model
         model = keras.Sequential()
         #model.add(keras.layers.Dense(24, input_dim=obs_spec.shape, activation='relu'))
-        print("input shape: " + str(obs_spec.shape))
-        model.add(keras.layers.Flatten(input_shape=obs_spec.shape))
+        #model.add(keras.layers.Dense(24, input_shape=obs_spec.shape, activation='relu'))
+        model.add(keras.layers.Dense(24, batch_input_shape=obs_spec.shape, activation='relu'))
         model.add(keras.layers.Dense(24, activation='relu'))
-        model.add(keras.layers.Dense(24, activation='relu'))
-        #model.add(keras.layers.Flatten())
         model.add(keras.layers.Dense(action_spec.num_values, activation='linear'))
         model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=learning_rate))
 
@@ -143,8 +120,8 @@ class DeepQLearning(base.Agent):
 def run_agent(bsuite_id, save_path=SAVE_PATH_RAND, overwrite=True):
     # Load environment
     env = bsuite.load_and_record(bsuite_id, save_path, overwrite=overwrite)
-    print('bsuite_id={}, settings={}, num_episodes={}'.format(bsuite_id, sweep.SETTINGS[bsuite_id],
-                                                              env.bsuite_num_episodes))
+    print('bsuite_id={}, settings={}, num_episodes={}, start={}'.format(
+        bsuite_id, sweep.SETTINGS[bsuite_id], env.bsuite_num_episodes, datetime.now().strftime("%H:%M:%S")))
     agent = DeepQLearning.default_agent(
         obs_spec=env.observation_spec(),
         action_spec=env.action_spec()
