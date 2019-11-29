@@ -1,6 +1,6 @@
 #
-# Agent: DQN
-# Experiment: bandit - all sweeps
+# Agent: SDQL
+# Experiment: All
 #
 import bsuite
 from bsuite.baselines import experiment
@@ -157,38 +157,38 @@ def run_agent(bsuite_id, save_path=SAVE_PATH_RAND, overwrite=True):
 
 
 # Basic
-# for bsuite_id in sweep.BANDIT:
-#     run_agent(bsuite_id)
-# for bsuite_id in sweep.MNIST:
-#     run_agent(bsuite_id)
-# for bsuite_id in sweep.CATCH:
-#     run_agent(bsuite_id)
-# for bsuite_id in sweep.MOUNTAIN_CAR:
-#     run_agent(bsuite_id)
-# for bsuite_id in sweep.CARTPOLE:
-#     run_agent(bsuite_id)
+for bsuite_id in sweep.BANDIT:
+    run_agent(bsuite_id)
+for bsuite_id in sweep.MNIST:
+    run_agent(bsuite_id)
+for bsuite_id in sweep.CATCH:
+    run_agent(bsuite_id)
+for bsuite_id in sweep.MOUNTAIN_CAR:
+    run_agent(bsuite_id)
+for bsuite_id in sweep.CARTPOLE:
+    run_agent(bsuite_id)
 
 # Reward noise
-# for bsuite_id in sweep.BANDIT_NOISE:
-#     run_agent(bsuite_id)
-# for bsuite_id in sweep.MNIST_NOISE:
-#     run_agent(bsuite_id)
-# for bsuite_id in sweep.CATCH_NOISE:
-#     run_agent(bsuite_id)
-# for bsuite_id in sweep.MOUNTAIN_CAR_NOISE:
-#     run_agent(bsuite_id)
-# for bsuite_id in sweep.CARTPOLE_NOISE:
-#     run_agent(bsuite_id)
+for bsuite_id in sweep.BANDIT_NOISE:
+    run_agent(bsuite_id)
+for bsuite_id in sweep.MNIST_NOISE:
+    run_agent(bsuite_id)
+for bsuite_id in sweep.CATCH_NOISE:
+    run_agent(bsuite_id)
+for bsuite_id in sweep.MOUNTAIN_CAR_NOISE:
+    run_agent(bsuite_id)
+for bsuite_id in sweep.CARTPOLE_NOISE:
+    run_agent(bsuite_id)
 
 # Reward scale
-# for bsuite_id in sweep.BANDIT_SCALE:
-#     run_agent(bsuite_id)
-# for bsuite_id in sweep.MNIST_SCALE:
-#     run_agent(bsuite_id)
-# for bsuite_id in sweep.CATCH_SCALE:
-#     run_agent(bsuite_id)
-# for bsuite_id in sweep.MOUNTAIN_CAR_SCALE:
-#     run_agent(bsuite_id)
+for bsuite_id in sweep.BANDIT_SCALE:
+    run_agent(bsuite_id)
+for bsuite_id in sweep.MNIST_SCALE:
+    run_agent(bsuite_id)
+for bsuite_id in sweep.CATCH_SCALE:
+    run_agent(bsuite_id)
+for bsuite_id in sweep.MOUNTAIN_CAR_SCALE:
+    run_agent(bsuite_id)
 for bsuite_id in sweep.CARTPOLE_SCALE:
     run_agent(bsuite_id)
 
