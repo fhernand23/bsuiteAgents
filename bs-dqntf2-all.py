@@ -95,11 +95,15 @@ class DQNTF2(base.Agent):
 
     @tf.function
     def _training_step(self, transitions):
+        # Record operations for automatic differentiation.
         with tf.GradientTape() as tape:
+            # step observation, step action, next step reward, next step discount, next step observation
             o_tm1, a_tm1, r_t, d_t, o_t = transitions
             r_t = tf.cast(r_t, tf.float32)  # [B]
             d_t = tf.cast(d_t, tf.float32)  # [B]
+            # get Q of current
             q_tm1 = self._online_network(o_tm1)  # [B, A]
+            # get Q of next steps
             q_t = self._target_network(o_t)  # [B, A]
 
             onehot_actions = tf.one_hot(a_tm1, depth=self._num_actions)  # [B, A]
