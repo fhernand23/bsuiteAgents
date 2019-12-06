@@ -19,9 +19,9 @@ class DQNAgent:
         self.epsilon_min = 0.01
         self.epsilon_decay = 0.995
         self.learning_rate = 0.001
-        self.model = self._build_model()
+        self.model = self.create_model()
 
-    def _build_model(self):
+    def create_model(self):
         # Neural Net for Deep-Q learning Model
         model = Sequential()
         model.add(Dense(24, input_dim=self.state_size, activation='relu'))
@@ -53,19 +53,16 @@ class DQNAgent:
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
 
-    def load(self, name):
-        self.model.load_weights(name)
 
     def save(self, name):
         self.model.save_weights(name)
 
 
-if __name__ == "__main__":
+def main():
     env = gym.make('CartPole-v1')
     state_size = env.observation_space.shape[0]
     action_size = env.action_space.n
     agent = DQNAgent(state_size, action_size)
-    # agent.load("./save/cartpole-dqn.h5")
     done = False
     batch_size = 32
 
@@ -88,3 +85,5 @@ if __name__ == "__main__":
                 agent.replay(batch_size)
         # if e % 10 == 0:
         #     agent.save("./save/cartpole-dqn.h5")
+if __name__ == "__main__":
+    main()
