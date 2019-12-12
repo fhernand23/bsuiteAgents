@@ -66,10 +66,11 @@ def main():
     done = False
     batch_size = 32
 
+    trial_len = 500
     for e in range(EPISODES):
         state = env.reset()
         state = np.reshape(state, [1, state_size])
-        for time in range(500):
+        for step in range(trial_len):
             # env.render()
             action = agent.act(state)
             next_state, reward, done, _ = env.step(action)
@@ -79,7 +80,7 @@ def main():
             state = next_state
             if done:
                 print("episode: {}/{}, score: {}, e: {:.2}"
-                      .format(e, EPISODES, time, agent.epsilon))
+                      .format(e, EPISODES, step, agent.epsilon))
                 break
             if len(agent.memory) > batch_size:
                 agent.replay(batch_size)

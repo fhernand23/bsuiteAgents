@@ -1,11 +1,11 @@
+# -*- coding: utf-8 -*-
+import random
 import gym
 import numpy as np
-import random
+from collections import deque
 from keras.models import Sequential
 from keras.layers import Dense, Dropout
 from keras.optimizers import Adam
-
-from collections import deque
 
 EPISODES = 1000
 
@@ -35,14 +35,14 @@ class DQNAgent:
                       optimizer=Adam(lr=self.learning_rate))
         return model
 
-    def remember(self, state, action, reward, new_state, done):
-        self.memory.append([state, action, reward, new_state, done])
+    def remember(self, state, action, reward, next_state, done):
+        self.memory.append([state, action, reward, next_state, done])
 
     def act(self, state):
         self.epsilon *= self.epsilon_decay
         self.epsilon = max(self.epsilon_min, self.epsilon)
         if np.random.random() < self.epsilon:
-            return self.env.action_space.sample()
+            return random.randrange(self.action_size)
         return np.argmax(self.model.predict(state)[0])
 
     def replay(self, batch_size):
@@ -79,24 +79,23 @@ def main():
     done = False
     batch_size = 32
 
-    gamma = 0.9
-    epsilon = .95
-
-    trials = 1000
     trial_len = 500
 
     # updateTargetNetwork = 1000
-    dqn_agent = DQN(env=env)
+    dqn_agent = DQNAgent(state_size, action_size)
     steps = []
     for e in range(EPISODES):
-        state = env.reset().reshape(1, 2)
+        # state = env.reset().reshape(1, 2)
+        state = env.reset()
+        state = np.reshape(state, [1, state_size])
         for step in range(trial_len):
-            action = agent.act(cur_state)
+            action = agent.act(state)
             next_state, reward, done, _ = env.step(action)
 
             # reward = reward if not done else -20
-            next_state = next_state.reshape(1, 2)
-            agent.remember(state, action, reward, new_state, done)
+            next_state = np.reshape(next_state, [1, state_size])
+            # next_state = next_state.reshape(1, 2)
+            agent.remember(state, action, reward, next_state, done)
 
             agent.replay()  # internally iterates default (prediction) model
             agent.target_train()  # iterates target model
@@ -104,14 +103,14 @@ def main():
             state = next_state
             if done:
                 print("episode: {}/{}, score: {}, e: {:.2}"
-                      .format(e, EPISODES, time, agent.epsilon))
+                      .format(e, EPISODES, step, agent.epsilon))
                 break
         if step >= 199:
-            print("Failed to complete in trial {}".format(trial))
+            print("Failed to complete in trial {}".format(step))
             if step % 10 == 0:
-                dqn_agent.save_model("trial-{}.model".format(trial))
+                dqn_agent.save_model("trial-{}.model".format(step))
         else:
-            print("Completed in {} trials".format(trial))
+            print("Completed in {} trials".format(step))
             dqn_agent.save_model("success.model")
             break
 

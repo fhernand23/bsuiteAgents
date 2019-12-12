@@ -20,7 +20,6 @@ SAVE_PATH_RAND = './bs2/dqn'
 
 class DQNTF2(base.Agent):
     """A simple DQN agent using TF2."""
-
     def __init__(
             self,
             action_spec: specs.DiscreteArray,
