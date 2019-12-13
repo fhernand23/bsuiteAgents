@@ -36,27 +36,27 @@ class DQNAgent:
         return model
 
     def remember(self, state, action, reward, next_state, done):
-        self.memory.append([state, action, reward, next_state, done])
+        self.memory.append((state, action, reward, next_state, done))
 
     def act(self, state):
         self.epsilon *= self.epsilon_decay
         self.epsilon = max(self.epsilon_min, self.epsilon)
         if np.random.random() < self.epsilon:
             return random.randrange(self.action_size)
-        return np.argmax(self.model.predict(state)[0])
+        act_values = self.model.predict(state)
+        return np.argmax(act_values[0])  # returns action
 
     def replay(self, batch_size):
         if len(self.memory) < batch_size:
             return
 
-        samples = random.sample(self.memory, batch_size)
-        for sample in samples:
-            state, action, reward, new_state, done = sample
+        minibatch = random.sample(self.memory, batch_size)
+        for state, action, reward, next_state, done in minibatch:
             target = self.target_model.predict(state)
             if done:
                 target[0][action] = reward
             else:
-                Q_future = max(self.target_model.predict(new_state)[0])
+                Q_future = max(self.target_model.predict(next_state)[0])
                 target[0][action] = reward + Q_future * self.gamma
             self.model.fit(state, target, epochs=1, verbose=0)
 
@@ -97,7 +97,7 @@ def main():
             # next_state = next_state.reshape(1, 2)
             agent.remember(state, action, reward, next_state, done)
 
-            agent.replay()  # internally iterates default (prediction) model
+            agent.replay(batch_size)  # internally iterates default (prediction) model
             agent.target_train()  # iterates target model
 
             state = next_state
@@ -105,14 +105,6 @@ def main():
                 print("episode: {}/{}, score: {}, e: {:.2}"
                       .format(e, EPISODES, step, agent.epsilon))
                 break
-        if step >= 199:
-            print("Failed to complete in trial {}".format(step))
-            if step % 10 == 0:
-                dqn_agent.save_model("trial-{}.model".format(step))
-        else:
-            print("Completed in {} trials".format(step))
-            dqn_agent.save_model("success.model")
-            break
 
 
 if __name__ == "__main__":
