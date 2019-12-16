@@ -100,11 +100,8 @@ def main():
                 break
         if step >= 199:
             print("Failed to complete in trial {}".format(trial))
-            if step % 10 == 0:
-                dqn_agent.save_model("trial-{}.model".format(trial))
         else:
             print("Completed in {} trials".format(trial))
-            dqn_agent.save_model("success.model")
             break
 
 

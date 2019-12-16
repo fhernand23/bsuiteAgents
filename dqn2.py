@@ -72,8 +72,8 @@ class DQNAgent:
 
 
 def main():
-    # env = gym.make('CartPole-v1')
-    env = gym.make("MountainCar-v0")
+    env = gym.make('CartPole-v1')
+    # env = gym.make("MountainCar-v0")
     state_size = env.observation_space.shape[0]
     action_size = env.action_space.n
     agent = DQNAgent(state_size, action_size)
@@ -90,6 +90,7 @@ def main():
         state = env.reset()
         state = np.reshape(state, [1, state_size])
         for step in range(trial_len):
+            env.render()
             action = agent.act(state)
             next_state, reward, done, _ = env.step(action)
 

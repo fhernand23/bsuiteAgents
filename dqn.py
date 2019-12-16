@@ -71,7 +71,7 @@ def main():
         state = env.reset()
         state = np.reshape(state, [1, state_size])
         for step in range(trial_len):
-            # env.render()
+            env.render()
             action = agent.act(state)
             next_state, reward, done, _ = env.step(action)
             reward = reward if not done else -10

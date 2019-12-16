@@ -33,6 +33,7 @@ class DQN2(base.Agent):
                 obs_spec: specs.Array,
                 action_spec: specs.DiscreteArray,
                 model,
+                target_model,
                 max_memory_length,
                 gamma,
                 epsilon,
@@ -99,16 +100,23 @@ class DQN2(base.Agent):
         """Initialize a DeepQLearning agent with default hyper parameters."""
         # create the model Neural Net for Deep-Q learning Model
         model = keras.Sequential()
-        #model.add(keras.layers.Dense(24, input_dim=obs_spec.shape, activation='relu'))
-        #model.add(keras.layers.Dense(24, input_shape=obs_spec.shape, activation='relu'))
-        model.add(keras.layers.Dense(24, batch_input_shape=obs_spec.shape, activation='relu'))
-        model.add(keras.layers.Dense(24, activation='relu'))
-        model.add(keras.layers.Dense(action_spec.num_values, activation='linear'))
+        model.add(keras.layers.Dense(24, input_dim=obs_spec.shape[0], activation="relu"))
+        model.add(keras.layers.Dense(48, activation="relu"))
+        model.add(keras.layers.Dense(24, activation="relu"))
+        model.add(keras.layers.Dense(action_spec.num_values))
         model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=learning_rate))
+
+        target_model = keras.Sequential()
+        target_model.add(keras.layers.Dense(24, input_dim=obs_spec.shape[0], activation="relu"))
+        target_model.add(keras.layers.Dense(48, activation="relu"))
+        target_model.add(keras.layers.Dense(24, activation="relu"))
+        target_model.add(keras.layers.Dense(action_spec.num_values))
+        target_model.compile(loss='mse', optimizer=keras.optimizers.Adam(lr=learning_rate))
 
         return DQN2(obs_spec=obs_spec,
                             action_spec=action_spec,
                             model = model,
+                            target_model = target_model,
                             max_memory_length=2000,
                             gamma = 0.95,  # discount rate
                             epsilon = 1.0,  # exploration rate
