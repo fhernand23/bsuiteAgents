@@ -41,6 +41,7 @@ class DQN2(base.Agent):
                 epsilon_decay,
                 learning_rate,
                 batch_size,
+                tau,
                 seed: int = None,):
         # configuration and hyperparameters.
         self._num_actions = action_spec.num_values
@@ -50,11 +51,13 @@ class DQN2(base.Agent):
         self._epsilon_decay = epsilon_decay
         self._learning_rate = learning_rate
         self._batch_size = batch_size
+        self._tau = tau
 
         self._total_steps = 0
         # self._memory = replay.Replay(capacity=max_memory_length)
         self._memory = deque(maxlen=max_memory_length)
         self._model = model
+        self._target_model = target_model
 
         tf.random.set_seed(seed)
         self._rng = np.random.RandomState(seed)
@@ -62,6 +65,8 @@ class DQN2(base.Agent):
     def policy(self, timestep: dm_env.TimeStep) -> base.Action:
         # Epsilon-greedy policy.
         print("policy: " + str(self._total_steps))
+        self._epsilon *= self._epsilon_decay
+        self._epsilon = max(self._epsilon_min, self._epsilon)
         if self._rng.rand() < self._epsilon:
             return np.random.randint(self._num_actions)
 
@@ -96,8 +101,9 @@ class DQN2(base.Agent):
         if self._epsilon > self._epsilon_min:
             self._epsilon *= self._epsilon_decay
 
-    def default_agent(obs_spec: specs.Array, action_spec: specs.DiscreteArray, learning_rate = 0.001):
+    def default_agent(obs_spec: specs.Array, action_spec: specs.DiscreteArray):
         """Initialize a DeepQLearning agent with default hyper parameters."""
+        learning_rate = 0.005
         # create the model Neural Net for Deep-Q learning Model
         model = keras.Sequential()
         model.add(keras.layers.Dense(24, input_dim=obs_spec.shape[0], activation="relu"))
@@ -118,11 +124,12 @@ class DQN2(base.Agent):
                             model = model,
                             target_model = target_model,
                             max_memory_length=2000,
-                            gamma = 0.95,  # discount rate
+                            gamma = 0.85,  # discount rate
                             epsilon = 1.0,  # exploration rate
                             epsilon_min = 0.01,
                             epsilon_decay = 0.995,
                             learning_rate = learning_rate,
+                            tau = .125,
                             batch_size = 32,
                             seed=42)
 
