@@ -24,7 +24,7 @@ from collections import deque
 from datetime import datetime
 
 
-SAVE_PATH_RAND = './bs/sdql'
+SAVE_PATH_RAND = './bs2/dqn2'
 
 
 class DQN2(base.Agent):
@@ -85,6 +85,7 @@ class DQN2(base.Agent):
         # if self._memory.size > self._batch_size:
         if len(self._memory) > self._batch_size:
             self.replay(self._batch_size)
+            self.target_train()  # iterates target model
 
     def replay(self, batch_size):
         # run a random sample of past actions
@@ -100,6 +101,13 @@ class DQN2(base.Agent):
             self._model.fit(state, target_f, epochs=1, verbose=0)
         if self._epsilon > self._epsilon_min:
             self._epsilon *= self._epsilon_decay
+
+    def target_train(self):
+        weights = self._model.get_weights()
+        target_weights = self._target_model.get_weights()
+        for i in range(len(target_weights)):
+            target_weights[i] = weights[i] * self._tau + target_weights[i] * (1 - self._tau)
+        self._target_model.set_weights(target_weights)
 
     def default_agent(obs_spec: specs.Array, action_spec: specs.DiscreteArray):
         """Initialize a DeepQLearning agent with default hyper parameters."""
