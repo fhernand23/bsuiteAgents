@@ -56,6 +56,8 @@ class DQNTF2(base.Agent):
 
     def policy(self, timestep: dm_env.TimeStep) -> base.Action:
         # Epsilon-greedy policy.
+        if self._total_steps % 50 == 0:
+            print("policy: " + str(self._total_steps) + " " + datetime.now().strftime("%H:%M:%S"))
         if self._rng.rand() < self._epsilon:
             return np.random.randint(self._num_actions)
         q_values = self._forward(timestep.observation[None, ...])
@@ -66,6 +68,8 @@ class DQNTF2(base.Agent):
             timestep: dm_env.TimeStep,
             action: base.Action,
             new_timestep: dm_env.TimeStep,):
+        if self._total_steps % 50 == 0:
+            print("update: " + str(self._total_steps) + " " + datetime.now().strftime("%H:%M:%S"))
         # Add this transition to replay.
         self._replay.add([
             timestep.observation,
@@ -94,6 +98,8 @@ class DQNTF2(base.Agent):
 
     @tf.function
     def _training_step(self, transitions):
+        if self._total_steps % 50 == 0:
+            print("replay: " + str(self._total_steps) + " " + datetime.now().strftime("%H:%M:%S"))
         with tf.GradientTape() as tape:
             o_tm1, a_tm1, r_t, d_t, o_t = transitions
             r_t = tf.cast(r_t, tf.float32)  # [B]

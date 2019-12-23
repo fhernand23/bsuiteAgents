@@ -64,7 +64,8 @@ class DQN2(base.Agent):
 
     def policy(self, timestep: dm_env.TimeStep) -> base.Action:
         # Epsilon-greedy policy.
-        print("policy: " + str(self._total_steps))
+        if self._total_steps % 50 == 0:
+            print("policy: " + str(self._total_steps) + " " + datetime.now().strftime("%H:%M:%S"))
         self._epsilon *= self._epsilon_decay
         self._epsilon = max(self._epsilon_min, self._epsilon)
         if self._rng.rand() < self._epsilon:
@@ -76,7 +77,8 @@ class DQN2(base.Agent):
 
     def update(self, timestep: dm_env.TimeStep, action: base.Action, new_timestep: dm_env.TimeStep,):
         # Add this transition to replay.
-        print("update: " + str(self._total_steps))
+        if self._total_steps % 50 == 0:
+            print("update: " + str(self._total_steps) + " " + datetime.now().strftime("%H:%M:%S"))
         #self._memory.add([timestep.observation, action, new_timestep.reward, new_timestep.discount, new_timestep.observation, new_timestep.last()])
         self._memory.append((timestep.observation, action, new_timestep.reward, new_timestep.discount, new_timestep.observation, new_timestep.last()))
 
@@ -90,7 +92,8 @@ class DQN2(base.Agent):
     def replay(self, batch_size):
         # run a random sample of past actions
         # minibatch = self._memory.sample(batch_size)
-        print("replay: " + str(self._total_steps))
+        if self._total_steps % 50 == 0:
+            print("replay: " + str(self._total_steps) + " " + datetime.now().strftime("%H:%M:%S"))
         minibatch = random.sample(self._memory, batch_size)
         for state, action, reward, discount, next_state, done in minibatch:
             # target = reward
