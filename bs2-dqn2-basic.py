@@ -93,12 +93,19 @@ class DQN2(base.Agent):
         print("replay: " + str(self._total_steps))
         minibatch = random.sample(self._memory, batch_size)
         for state, action, reward, discount, next_state, done in minibatch:
-            target = reward
-            if not done:
-                target = (reward + self._gamma * np.amax(self._model.predict(next_state)[0]))
-            target_f = self._model.predict(state)
-            target_f[0][action] = target
-            self._model.fit(state, target_f, epochs=1, verbose=0)
+            # target = reward
+            # if not done:
+            #     target = (reward + self._gamma * np.amax(self._model.predict(next_state)[0]))
+            # target_f = self._model.predict(state)
+            # target_f[0][action] = target
+            # self._model.fit(state, target_f, epochs=1, verbose=0)
+            target = self._model.predict(state)
+            if done:
+                target[0][action] = reward
+            else:
+                Q_future = max(self._target_model.predict(next_state)[0])
+                target[0][action] = reward + Q_future * self.gamma
+            self._model.fit(state, target, epochs=1, verbose=0)
         if self._epsilon > self._epsilon_min:
             self._epsilon *= self._epsilon_decay
 
